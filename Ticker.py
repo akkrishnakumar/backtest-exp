@@ -6,4 +6,11 @@ class Ticker:
         self.gain = gain
 
     def __str__(self):
-        return f"Ticker({self.name}, Buy: {self.buy_price}, Gain: {self.gain})"
+        return f"Ticker({self.name}, Buy Price: {self.buy_price}, Gain: {self.gain})"
+    
+    def __repr__(self):
+        return str(self)
+        
+
+def empty_ticker_from(ticker): 
+    return Ticker(ticker, 0)

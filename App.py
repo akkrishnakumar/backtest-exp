@@ -19,16 +19,11 @@ def read_nse_index(file_path):
         print(f"An error occurred: {e}")
     return values
 
+# Sort a list of Ticker objects w.r.t. the gains
 def rank(ticker_returns):
-    flat_data_for_df = []
-    for row in ticker_returns:
-        for ticker, gain in row.items():
-            flat_data_for_df.append({'Ticker': ticker, 'Gain': gain})
-    
-    df = pd.DataFrame(flat_data_for_df)
-    df_filtered = df.dropna(subset=['Gain'])
-    df_sorted = df_filtered.sort_values(by='Gain', ascending=False)
-    return df_sorted
+    filteredTickers = [ticker for ticker in ticker_returns if ticker.gain is not None]
+    ranked_tickers = sorted(filteredTickers, key=lambda ticker: ticker.gain, reverse=True)
+    return ranked_tickers
 
 def past_month_dates(num_of_months: 12):
     dates_list = []
@@ -62,11 +57,15 @@ if __name__ == "__main__":
         ranked = rank(returns)
         
         # Store the top 50 stocks into the back test
-        backtest[i] = ranked.head(10)
+        backtest[i] = ranked[:10]
     
     print("\n=========")
     print("List of stocks per month ranked by momentum score. (Top 50)")
-    print(backtest)
+
+    for (k, t) in backtest.items():
+        print(f"{k}:")
+        print(t)
+        print("\n")
     
     # Store state of each monthly rebalance in a list - Portfolio(List(stocks, weights, price, qty) etc)
     # Iterate over portfolio and create PnL(current returns, Avg win, Avg loss, Biggest Drawdown, sharpe ration etc)
