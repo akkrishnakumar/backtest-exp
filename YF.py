@@ -1,39 +1,42 @@
 import os
 import yfinance as yf
 import pandas as pd
+
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-
+from CLI import println, br
 from Ticker import Ticker, empty_ticker_from
+from Backtest import Backtest
 
-def returns_of_12_minus_1_months(tickers, target_date):
+def returns_of_12_minus_1_months(tickers, curr_date):
         
-    end_date = (target_date.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59) # last day of the previous month
+    end_date = (curr_date.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59) # last day of the previous month
     start_date = (end_date - relativedelta(months=12)).replace(day=1) # Start of the 12th month ago
     
     # Convert with yf compatible tickers
     yf_tickers = [f"{ticker}.NS" for ticker in tickers]
     
     print("Searching from data cache...")
-    data = fetch_from_cache(target_date)
+    data = fetch_from_cache(curr_date)
     
     if data is not None:
         print("Reading data from cache...")
-        return extract_returns(yf_tickers, data)
+        return Backtest(curr_date, extract_returns(yf_tickers, data, curr_date, end_date))
     
     else:
         try:
-            print(f"Fetching data from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+            print(f"Fetching data from {start_date.strftime('%Y-%m-%d')} to {curr_date.strftime('%Y-%m-%d')}")
 
-            downloaded_data = yf.download(yf_tickers, start=start_date, end=end_date, auto_adjust=True, progress=False)
-            store_data_in_cache(target_date, downloaded_data)
-            return extract_returns(yf_tickers, downloaded_data)
+            # Download data up till current date
+            downloaded_data = yf.download(yf_tickers, start=start_date, end=curr_date + timedelta(days=2), auto_adjust=True, progress=False)
+            store_data_in_cache(curr_date, downloaded_data)
+            return Backtest(curr_date, extract_returns(yf_tickers, downloaded_data, curr_date, end_date))
         
         except Exception as e:
             print(f"Error while trying to fetch data from YF: {e}")
             return []
 
-def extract_returns(yf_tickers, data):
+def extract_returns(yf_tickers, data, curr_date, end_date):
     results = []
     try:
         if data.empty:
@@ -54,10 +57,12 @@ def extract_returns(yf_tickers, data):
                     continue
             
                 beginning_price = ticker_data.iloc[0]
-                ending_price = ticker_data.iloc[-1]
-            
+                ending_price = ticker_data.loc[end_date.strftime('%Y-%m-%d')]
+                current_price = ticker_data.loc[curr_date.strftime('%Y-%m-%d')]
+                
                 price_return = int(((ending_price / beginning_price) - 1) * 100) # convert to simple int to readability
-                results.append(Ticker(ticker, beginning_price, price_return))
+                
+                results.append(Ticker(ticker, current_price, price_return))
         
             else:
                 print(f"  Warning: No 'Close' data found for {ticker} in the batch download. Skipping.")
