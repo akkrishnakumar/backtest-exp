@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from YF import returns_of_12_minus_1_months
-from Strategy import Strategy_M_12_minus_1 as Stragey1
+from Strategy import Strategy_M_12_minus_1 as Strategy1
 
 def read_nse_index(file_path):
     values = []
@@ -49,6 +49,6 @@ if __name__ == "__main__":
     
     print("\n=========")
     print("Back testing Strategy.... ")
-    Stragey1(backtest).run()
+    Strategy1(backtest).run()
     print("\nDone! ")
     print("\n=========")
