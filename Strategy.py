@@ -30,17 +30,16 @@ class Strategy_M_12_minus_1:
         print("\n Running Backtest...")
         tail = list(self.backtests.items())
         for i, rebalanceUpdate in tail[1:]:
+            
             ranked = self.rank(rebalanceUpdate)[:10]
             
             rb_names = []
             for r in ranked:
                rb_names.append(r.name)
             rb_names = set(rb_names)
-            # print(f"rb_names: {rb_names}")
             
-            pf_names = p.holdings.keys()
-            pf_names = set(pf_names)
-            # print(f"pf_names: {pf_names}")
+            pf_names = set(p.holdings)
+           
             
             newPf = []
             existing_entries = list(rb_names.intersection(pf_names))
@@ -51,17 +50,18 @@ class Strategy_M_12_minus_1:
             
             print("\n")
             
+            # print(f"rb_names: {rb_names}")
+            # print(f"pf_names: {pf_names}")
+            # print("\n")
+            
             print(f"PF {i}: {newPf}")
             
             # How many ranked out ? Close positions
             toSell = list(pf_names.difference(rb_names))
             print(f"toSell {i}: {toSell}")
             
-            # How many still in top place ? 
-            # How many new ? assign them the appropriate weights
-            # rebalance portfolio
-            
-            p.holdings
+            # Rebalancing the portfolio 
+            p.holdings = rb_names
 
             
         return True

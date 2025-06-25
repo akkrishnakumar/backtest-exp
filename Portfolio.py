@@ -1,6 +1,6 @@
 class Portfolio:
     
-    holdings = {}
+    holdings = []
     
     def __init__(self, initialBuys):
         self.initialBuy = initialBuys
@@ -8,7 +8,7 @@ class Portfolio:
         
         print("\n - Making first purchase")
         for initialBuy in initialBuys:
-            self.holdings[initialBuy.name] = initialBuy
+            self.holdings.append(initialBuy.name)
 
         print("\n Portfolio Initialized !")
     
