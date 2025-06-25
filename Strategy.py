@@ -49,6 +49,8 @@ class Strategy_M_12_minus_1:
             new_entries = list(rb_names.difference(pf_names))
             newPf += new_entries
             
+            print("\n")
+            
             print(f"PF {i}: {newPf}")
             
             # How many ranked out ? Close positions
@@ -60,5 +62,6 @@ class Strategy_M_12_minus_1:
             # rebalance portfolio
             
             p.holdings
+
             
         return True

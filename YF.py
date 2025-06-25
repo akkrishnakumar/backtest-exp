@@ -1,3 +1,4 @@
+import os
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
@@ -10,16 +11,31 @@ def returns_of_12_minus_1_months(tickers, target_date):
     end_date = (target_date.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59) # last day of the previous month
     start_date = (end_date - relativedelta(months=12)).replace(day=1) # Start of the 12th month ago
     
-    print(f"Fetching data from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
-    
     # Convert with yf compatible tickers
     yf_tickers = [f"{ticker}.NS" for ticker in tickers]
     
-    results = []
+    print("Searching from data cache...")
+    data = fetch_from_cache(target_date)
     
-    try:
-        data = yf.download(yf_tickers, start=start_date, end=end_date, auto_adjust=True, progress=False)
+    if data is not None:
+        print("Reading data from cache...")
+        return extract_returns(yf_tickers, data)
+    
+    else:
+        try:
+            print(f"Fetching data from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+
+            downloaded_data = yf.download(yf_tickers, start=start_date, end=end_date, auto_adjust=True, progress=False)
+            store_data_in_cache(target_date, downloaded_data)
+            return extract_returns(yf_tickers, downloaded_data)
         
+        except Exception as e:
+            print(f"Error while trying to fetch data from YF: {e}")
+            return []
+
+def extract_returns(yf_tickers, data):
+    results = []
+    try:
         if data.empty:
             print("No data retrieved for any of the tickers in the specified period.")
             for ticker in yf_tickers:
@@ -46,11 +62,23 @@ def returns_of_12_minus_1_months(tickers, target_date):
             else:
                 print(f"  Warning: No 'Close' data found for {ticker} in the batch download. Skipping.")
                 results.append(empty_ticker_from(ticker))
-        
+                
     except Exception as e:
         print(f"An error occurred during batch download or processing: {e}")
-        for ticker in tickers:
+        for ticker in yf_tickers:
             results.append(empty_ticker_from(ticker))
-    
+            
     print("\n=======\n") 
-    return results
+    return results   
+
+def fetch_from_cache(target_date):
+    data_cache = f".cache/{target_date.strftime('%Y-%m-%d')}.csv"
+    if os.path.exists(data_cache):
+        return pd.read_parquet(data_cache)
+    else:
+        return None
+
+def store_data_in_cache(target_date, data):
+    data_cache = f".cache/{target_date.strftime('%Y-%m-%d')}.csv"
+    os.makedirs(".cache", exist_ok=True)
+    data.to_parquet(data_cache, index=True)
