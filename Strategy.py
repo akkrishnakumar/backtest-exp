@@ -12,26 +12,28 @@ class Strategy_M_12_minus_1:
         ranked_tickers = sorted(filteredTickers, key=lambda ticker: ticker.gain, reverse=True)
         return ranked_tickers
     
+    def test_results(self):
+        return [result.test_results for result in self.backtests]
+    
     def run(self):
         
-        print("\nInitiating Strategy...\n")
-        items = list(self.backtests.items())
-        head = items[0]
-        tail = items[1:] 
-        
-        for (i, h) in enumerate(head):
-            println(f"{i} - {h}")
+        print("\nInitiating Strategy...\n")        
         
         br()
         println("Creating Portfolio....")
         println("- Ranking stocks") 
-        p = Portfolio(self.rank(head[1])[:10])
+        head = self.test_results()[0]
+        p = Portfolio(self.rank(head)[:10])
         println("Portfolio Created !")
+        
+        println(f"PF init: {p.holding_names()}")
         
         br()
         println("Running Backtest...")
-        for i, (target_date, rebalanceUpdate) in enumerate(tail):
+        for i, backtest in enumerate(self.backtests):
             
+            target_date = backtest.target_date
+            rebalanceUpdate = backtest.test_results
             ranked = self.rank(rebalanceUpdate)[:10]
             
             # if in holdings, don't replace
@@ -43,7 +45,7 @@ class Strategy_M_12_minus_1:
                rb_names.append(r.name)
             rb_names = set(rb_names)
             
-            pf_names = set(p.holding_names())
+            pf_names = p.holding_names()
            
             newPf = []
             existing_entries = list(rb_names.intersection(pf_names))
@@ -54,9 +56,9 @@ class Strategy_M_12_minus_1:
             
             print("\n")
             
-            println(f"rb_names: {rb_names}")
-            println(f"pf_names: {pf_names}")
-            println(f"Date: {target_date}")
+            # println(f"rb_names: {rb_names}")
+            # println(f"pf_names: {pf_names}")
+            # println(f"Date: {target_date}")
             
             print(f"PF {i}: {newPf}")
             

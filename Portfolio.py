@@ -7,7 +7,7 @@ class Portfolio:
     tradebook = []
     
     def __init__(self, initialBuys):
-        self.initialBuy = initialBuys
+        self.initialBuys = initialBuys
         println("Initializing Portfolio...")
         
         println("- Making first purchase")
@@ -17,7 +17,7 @@ class Portfolio:
         println("Portfolio Initialized !")
     
     def holding_names(self):
-        return self.holdings.keys()
+        return set(self.holdings.keys())
     
     def update_holdings(self, tickers):
         for ticker in tickers:
