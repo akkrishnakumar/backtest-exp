@@ -17,18 +17,28 @@ class Portfolio:
         println("Portfolio Initialized !")
     
     def holding_names(self):
-        return set(self.holdings.keys())
+        return self.holdings.keys()
     
-    def update_holdings(self, tickers):
+    def rebalance(self, tickers, rebalance_date):
+        # buy new entries
         for ticker in tickers:
             if ticker.name not in self.holdings.keys():
                 self.holdings[ticker.name] = Holding(ticker)
+            self.buy(ticker)
+            
+        # sell entries which are not present in the new updated portfolio
+        ticker_names_to_sell = set(self.holding_names()).difference([t.name for t in tickers])
+        for t in ticker_names_to_sell:
+            self.sell(t, rebalance_date)
+            
+        println(f"New holdings: {[t.name for t in tickers]}")
+        println(f"Sold holdings: {list(ticker_names_to_sell)}")
         
-    # positions_to_close is only a set of strings    
-    def close_positions(self, positions_to_close, sell_date):
-        for position in positions_to_close:
-            if position in self.holdings.keys():
-                popped = self.holdings.pop(position)
-                trade = popped.sell(sell_date)
-                self.tradebook.append(trade)
+    def buy(self, ticker):
+        if ticker.name not in self.holding_names():
+            self.holdings[ticker.name] = Holding(ticker)
+    
+    def sell(self, ticker, sell_date):
+        popped_holding = self.holdings.pop(ticker)
+        self.tradebook.append(popped_holding.sell(sell_date))
         

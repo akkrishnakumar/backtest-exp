@@ -40,10 +40,8 @@ if __name__ == "__main__":
     for (i, target_date) in enumerate(lookback_dates[:1]):
         # Function to fetch 12 months data for each stock in the list and rank them according to returns
         backtests.append(returns_of_12_minus_1_months(tickers, target_date))
-    
-    println(len(backtests))
-    # print("\n=========")
-    # print("Back testing Strategy.... ")
-    # Strategy1(backtests).run()
-    # print("\nDone! ")
-    # print("\n=========")
+    br("=")
+    print("Back testing Strategy.... ")
+    Strategy1(backtests).run()
+    print("\nDone! ")
+    br("=")
