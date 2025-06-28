@@ -12,7 +12,7 @@ class Holding:
         self.qty = qty
     
     def sell(self, sell_date):
-        return Trade(self.name, self.buy_price, self.last_close_price_of(sell_date), 1)
+        return Trade(self.name, self.buy_price, 0, 1)
     
     def last_close_price_of(self, date):
         try:

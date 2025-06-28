@@ -11,9 +11,10 @@ from DateUtil import to_string, nearest_friday_of, next_day_of
 
 def returns_of_12_minus_1_months(tickers, curr_date):
         
+    # Revisit the date range again. Needs to be more accurate    
     end_date = nearest_friday_of((curr_date.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59)) # last day of the previous month
     start_date = (end_date - relativedelta(months=12)).replace(day=1) # Start of the 12th month ago
-    
+        
     # Convert with yf compatible tickers
     yf_tickers = [f"{ticker}.NS" for ticker in tickers]
      

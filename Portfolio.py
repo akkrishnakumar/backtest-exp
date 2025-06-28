@@ -21,7 +21,7 @@ class Portfolio:
     
     def update_holdings(self, tickers):
         for ticker in tickers:
-            if ticker.name not in self.holdings:
+            if ticker.name not in self.holdings.keys():
                 self.holdings[ticker.name] = Holding(ticker)
         
     # positions_to_close is only a set of strings    
